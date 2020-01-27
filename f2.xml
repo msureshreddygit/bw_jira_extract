@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" version="4.3">
+
+	<Header copyright="www.dmg.org" description=" Transformation in Tree Model of PMML."/>
+	<DataDictionary numberOfFields="2">
+		<DataField name="n1" optype="continuous" dataType="double"/>
+		<DataField name="n2" optype="continuous" dataType="double"/>
+		<DataField name="result" optype="continuous" dataType="double"/>
+	</DataDictionary>
+
+	<TransformationDictionary>
+	  <DefineFunction name="sum" dataType="double" optype="continuous">
+		<ParameterField name="num1" optype="continuous" dataType="double" />
+		<ParameterField name="num2" optype="continuous" dataType="double" />
+		<EXPRESSION>
+			<Apply function="+">
+				<FieldRef field="num1"/>
+				<FieldRef field="num2"/>
+			</Apply>
+		</EXPRESSION>
+	  </DefineFunction>
+	  
+	  <DerivedField name="sum_output" dataType="double" optype="continuous">
+		<Apply function="sum">
+		  <FieldRef field="num1"/>
+		  <FieldRef field="num2"/>
+		</Apply>
+	  </DerivedField>
+	</TransformationDictionary>
+
+	<TreeModel modelName="demoTreeModel" functionName="classification">
+		<MiningSchema>
+			<MiningField name="n1"/>
+			<MiningField name="result" usageType="target" />
+			<MiningField name="n2"/>
+		</MiningSchema>
+		
+		<Node score="100">
+				<True/>
+				<Node score="80">
+					<CompoundPredicate booleanOperator="and">
+							<SimplePredicate field="n1" operator="equal" value="10"/>
+							<SimplePredicate field="n2" operator="equal" value="20"/>
+					</CompoundPredicate>
+				</Node>
+		</Node>
+	</TreeModel>
+</PMML>
