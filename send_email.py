@@ -1,3 +1,5 @@
+# email functionality in python
+
 import smtplib, ssl
 from email import encoders
 from email.mime.base import MIMEBase
