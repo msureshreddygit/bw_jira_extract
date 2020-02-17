@@ -29,7 +29,7 @@ class GenerateMail:
             sender_pass = 'zazeipkoyxnboibw'
             # 'Sharvari.Hongekar@bitwiseglobal.com,Roshan.Deshpande@bitwiseglobal.com,Radhika.Ingle@bitwiseglobal.com,Ravi.Goklani@bitwiseglobal.com,jayanaga.medapati@bitwiseglobal.com'
             receiver_address = 'rohan.gangathade1@bitwiseglobal.com'
-            carbon_copy = 'jayanaga.medapati@bitwiseglobal.com,rohan.gangathade1@bitwiseglobal.com'
+            carbon_copy = 'jayanaga.medapati@bitwiseglobal.com,bhagwat.niras@bitwiseglobal.com'
 
             # Setup the MIME
             message = MIMEMultipart()
@@ -61,6 +61,7 @@ class GenerateMail:
                 session.login(sender_address, sender_pass)
                 text = message.as_string()
                 session.sendmail(sender_address, receiver_address.split(','), text)
+                session.sendmail(sender_address, carbon_copy.split(','), text)
                 session.quit()
                 print('Mail sent successfully')
                 logging.info("Mail sent successfully")
