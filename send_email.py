@@ -1,49 +1,73 @@
+from datetime import datetime
 import smtplib, ssl
+import logging
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-subject = "An email with attachment from Python"
-body = "This is an email with attachment sent from Python"
-sender_email = "rohan.gangathade1@bitwiseglobal.com"
-receiver_email = "bhagwat.niras@bitwiseglobal.com"
-password = input("Type your password and press enter:")
 
-# Create a multipart message and set headers
-message = MIMEMultipart()
-message["From"] = sender_email
-message["To"] = receiver_email
-message["Subject"] = subject
-message["Bcc"] = receiver_email  # Recommended for mass emails
+class GenerateMail:
+    @staticmethod
+    def generate_mail(att_file):
+        if att_file is None:
+            print("File attachment is empty")
+        else:
+            mail_content = '''
+            Hello Team,
+            
+            Please find the attached report for Bitwise jira extract project.
+            (Note: This is an auto-generated E-mail. Kindly do not respond)
+            
+            Regards,
+            Fandango Team
+            '''
 
-# Add body to email
-message.attach(MIMEText(body, "plain"))
+            file_name = datetime.now().strftime('Jira_Extract_Execution_Report_%Y%m%d_%H%M%S.xlsx')
+            # The mail addresses and password
+            sender_address = 'jiraextract@gmail.com'
+            sender_pass = 'zazeipkoyxnboibw'
+            # 'Sharvari.Hongekar@bitwiseglobal.com,Roshan.Deshpande@bitwiseglobal.com,Radhika.Ingle@bitwiseglobal.com,Ravi.Goklani@bitwiseglobal.com,jayanaga.medapati@bitwiseglobal.com'
+            receiver_address = 'rohan.gangathade1@bitwiseglobal.com'
+            carbon_copy = 'jayanaga.medapati@bitwiseglobal.com,bhagwat.niras@bitwiseglobal.com'
 
-filename = "Jira_Extract_Execution_Report_23012020_154703.xlsx"  # In same directory as script
+            # Setup the MIME
+            message = MIMEMultipart()
+            message['From'] = sender_address
+            message['To'] = receiver_address
+            message["Cc"] = carbon_copy
+            message['Subject'] = 'Jira Extract Execution Report'
 
-# Open PDF file in binary mode
-with open(filename, "rb") as attachment:
-    # Add file as application/octet-stream
-    # Email client can usually download this automatically as attachment
-    part = MIMEBase("application", "octet-stream")
-    part.set_payload(attachment.read())
+            # The subject line
+            # The body and the attachments for the mail
+            try:
+                message.attach(MIMEText(mail_content, 'plain'))
+                attach_file = open(att_file, 'rb')  # Open the file as binary mode
+                payload = MIMEBase('application', 'octate-stream')
+                payload.set_payload(attach_file.read())
+                encoders.encode_base64(payload)  # encode the attachment
 
-# Encode file in ASCII characters to send by email
-encoders.encode_base64(part)
+                # add payload header with filename
+                payload.add_header('Content-Disposition', 'attachment', filename=file_name)
+                message.attach(payload)
+            except Exception:
+                print("An error occurred while attaching a file to the mail")
+                logging.error("An error occurred while attaching a file to the mail")
 
-# Add header as key/value pair to attachment part
-part.add_header(
-    "Content-Disposition",
-    f"attachment; filename= {filename}",
-)
+            # Create SMTP session for sending the mail
+            try:
+                session = smtplib.SMTP('smtp.gmail.com', 587)
+                session.starttls()
+                session.login(sender_address, sender_pass)
+                text = message.as_string()
+                session.sendmail(sender_address, receiver_address.split(','), text)
+                session.sendmail(sender_address, carbon_copy.split(','), text)
+                session.quit()
+                print('Mail sent successfully')
+                logging.info("Mail sent successfully")
+            except Exception:
+                print("An error occurred while login to the Gmail SMTP server")
+                logging.error("An error occurred while login to the Gmail SMTP server")
 
-# Add attachment to message and convert message to string
-message.attach(part)
-text = message.as_string()
 
-# Log in to server using secure context and send email
-context = ssl.create_default_context()
-with smtplib.SMTP(host='exchsrv1.bitwiseglobal.net', port=25) as server:
-    server.login(sender_email, password)
-    server.sendmail(sender_email, receiver_email, text)
+mailObj = GenerateMail()

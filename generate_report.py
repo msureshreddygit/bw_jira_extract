@@ -10,6 +10,9 @@ class GenerateReport:
         if not files_dict:
             print("No report is generated, as no files were renamed")
             logging.warning("No report is generated, as no files were renamed")
+            print("No email is generated, as no files were renamed")
+            logging.warning("No email is generated, as no files were renamed")
+            exit()
         else:
             root_df = pd.read_csv(key_file)
 
@@ -23,21 +26,23 @@ class GenerateReport:
             root_file_join_df = pd.merge(root_df, file_df, on='exportProjectKey')
 
             if root_file_join_df.empty:
-                filename1 = datetime.now().strftime('Jira_Extract_Execution_Report_%d%m%Y_%H%M%S.xlsx')
+                filename1 = datetime.now().strftime('Jira_Extract_Execution_Report_%Y%m%d_%H%M%S.xlsx')
                 writer = ExcelWriter(path + filename1)
                 file_df[['exportProjectKey', 'Jira_name', 'Filename']].to_excel(writer, sheet_name='Report', index=False,  engine='xlsxwriter')
                 writer.save()
                 print("Report generation successful")
                 logging.info("Report generation successful")
+                return writer
             else:
                 folder_df = pd.DataFrame(folder_dict.items(), columns=['Jira_name', 'New_Jira_Name'])
                 final_df = pd.merge(root_file_join_df, folder_df, on='Jira_name')
-                filename1 = datetime.now().strftime('Jira_Extract_Execution_Report_%d%m%Y_%H%M%S.xlsx')
+                filename1 = datetime.now().strftime('Jira_Extract_Execution_Report_%Y%m%d_%H%M%S.xlsx')
                 writer = ExcelWriter(path + filename1)
                 final_df[['exportProjectKey', 'jiraProjectKey', 'jiraProjectName', 'New_Jira_Name', 'Filename']].to_excel(writer, sheet_name='Report', index=False, engine='xlsxwriter')
                 writer.save()
                 print("Report generation successful")
                 logging.info("Report generation successful")
+                return writer
 
 
 generateReportObj = GenerateReport()
